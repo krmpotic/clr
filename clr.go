@@ -44,6 +44,19 @@ const (
 	bg_default = esc + "[49m" // set background color to default (black)
 )
 
+func color(re *regexp.Regexp, colorCode string, s string) (t string) {
+	i := 0
+	for _, m := range re.FindAllStringIndex(s, -1) {
+		t += s[i:m[0]]
+		t += colorCode
+		t += s[m[0]:m[1]]
+		t += reset
+		i = m[1]
+	}
+	t += s[i:]
+	return
+}
+
 func main() {
 	r := ""
 	for i, a := range os.Args[1:] {
@@ -56,15 +69,6 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		i := 0
-		t := scanner.Text()
-		for _, m := range re.FindAllStringIndex(t, -1) {
-			fmt.Printf("%s", t[i:m[0]])
-			fmt.Printf("%s", fg_red)
-			fmt.Printf("%s", t[m[0]:m[1]])
-			fmt.Printf("%s", reset)
-			i = m[1]
-		}
-		fmt.Println(t[i:])
+		fmt.Println(color(re, fg_red, scanner.Text()))
 	}
 }
