@@ -47,10 +47,7 @@ const (
 func color(re *regexp.Regexp, colorCode string, s string) (t string) {
 	i := 0
 	for _, m := range re.FindAllStringIndex(s, -1) {
-		t += s[i:m[0]]
-		t += colorCode
-		t += s[m[0]:m[1]]
-		t += reset
+		t += s[i:m[0]] + colorCode + s[m[0]:m[1]] + reset
 		i = m[1]
 	}
 	t += s[i:]
