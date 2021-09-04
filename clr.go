@@ -54,18 +54,28 @@ func color(re *regexp.Regexp, colorCode string, s string) (t string) {
 	return
 }
 
+type search struct {
+	code string // ansi color code
+	re   []*regexp.Regexp
+}
+
 func main() {
-	r := ""
-	for i, a := range os.Args[1:] {
-		if i != 0 {
-			r += "|"
-		}
-		r += regexp.QuoteMeta(a)
+	var searches []search
+	for _, a := range os.Args[1:] {
+		var s search
+		s.code = fg_yellow
+		s.re = append(s.re, regexp.MustCompile(regexp.QuoteMeta(a)))
+		searches = append(searches, s)
 	}
-	re := regexp.MustCompile(r)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		fmt.Println(color(re, fg_red, scanner.Text()))
+		l := scanner.Text()
+		for _, s := range searches {
+			for _, r := range s.re {
+				l = color(r, s.code, l)
+			}
+		}
+		fmt.Println(l)
 	}
 }
