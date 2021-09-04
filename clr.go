@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"bufio"
 	"regexp"
 )
 
@@ -45,13 +45,14 @@ const (
 )
 
 func main() {
-	var s string
-	if len(os.Args) < 2 {
-		os.Exit(1)
-	} else {
-		s = os.Args[1]
+	r := ""
+	for i, a := range os.Args[1:] {
+		if i != 0 {
+			r += "|"
+		}
+		r += regexp.QuoteMeta(a)
 	}
-	re := regexp.MustCompile(s)
+	re := regexp.MustCompile(r)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
