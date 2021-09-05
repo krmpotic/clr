@@ -44,6 +44,10 @@ const (
 	bg_default = esc + "[49m" // set background color to default (black)
 )
 
+const (
+	default_mark = fg_red
+)
+
 func color(re *regexp.Regexp, colorCode string, s string) (t string) {
 	i := 0
 	for _, m := range re.FindAllStringIndex(s, -1) {
@@ -59,13 +63,40 @@ type search struct {
 	re   []*regexp.Regexp
 }
 
+func parseColorFlag(flag string) (string, bool) {
+	switch flag {
+	case "-red":
+		return fg_red, true
+	case "-green":
+		return fg_green, true
+	case "-yellow":
+		return fg_yellow, true
+	case "-blue":
+		return fg_blue, true
+	case "-magenta":
+		return fg_magenta, true
+	case "-cyan":
+		return fg_cyan, true
+	default:
+		return "", false
+	}
+}
+
 func main() {
 	var searches []search
-	for _, a := range os.Args[1:] {
-		var s search
-		s.code = fg_yellow
-		s.re = append(s.re, regexp.MustCompile(regexp.QuoteMeta(a)))
-		searches = append(searches, s)
+	for i, a := range os.Args[1:] {
+		if clr, ok := parseColorFlag(a); ok {
+			var m search
+			m.code = clr
+			searches = append(searches, m)
+			continue
+		} else if i == 0 {
+			var m search
+			m.code = default_mark
+			searches = append(searches, m)
+		}
+		re := regexp.MustCompile(a)
+		searches[len(searches)-1].re = append(searches[len(searches)-1].re, re)
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
